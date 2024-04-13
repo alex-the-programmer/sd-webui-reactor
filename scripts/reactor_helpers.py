@@ -233,3 +233,6 @@ def get_images_from_list(imgs: List):
         images_names.append(os.path.basename(x.name))
     return images,images_names
     # return [Image.open(os.path.abspath(x.name)) for x in imgs],[os.path.basename(x.name) for x in imgs]
+
+def get_image_names(images: List):
+    images, [f"training_image_#{i}" for i in images]

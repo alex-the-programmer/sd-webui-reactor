@@ -23,6 +23,7 @@ import gradio as gr
 from scripts.reactor_swapper import EnhancementOptions, swap_face, DetectionOptions
 from scripts.reactor_logger import logger
 from scripts.reactor_helpers import get_facemodels
+from reactor_swapper import blend_faces
 
 # XYZ init:
 from scripts.reactor_xyz import run
@@ -162,7 +163,35 @@ def reactor_api(_: gr.Blocks, app: FastAPI):
     async def reactor_facemodels():
         facemodels = [os.path.split(model)[1].split(".")[0] for model in get_facemodels()]
         return {"facemodels": facemodels}
+    
+    @app.post("/reactor/blend_models")
+    async def reactor_create_blend_model(
+        source_images: list[str] = Body([], title="List of input image base64s"),
+        character_name: str = Body("", title="Character name"),
+        compute_method: str = Body(0, title="Compute method"),
+        shape_check: bool = Body(False, title="Check shape")
+    ):
+        converted_images = map(api.decode_base64_to_image, source_images)
+        compute_method_index  = 0
+        if compute_method == 'Mean':
+            compute_method_index = 0
+        elif compute_method == 'Median': 
+            compute_method_index = 1
+        elif compute_method == 'Mode':
+            compute_method_index = 2
+        else:
+            return {"error": "unsupported compute_method. Supported methods are Mean, Median, and Mode"}
 
+
+        model_generation_response = blend_faces(
+            images_list=[],
+            converted_images=converted_images,
+            name=character_name,
+            compute_method=compute_method_index,
+            shape_check=shape_check
+        )   
+
+        return {"model_generation_status": model_generation_response} 
 try:
     import modules.script_callbacks as script_callbacks
 

@@ -661,11 +661,11 @@ def build_face_model(image: Image.Image, name: str, save_model: bool = True, det
         logger.error(no_face_msg)
         return no_face_msg
 
-def blend_faces(images_list: List, name: str, compute_method: int = 0, shape_check: bool = False):
+def blend_faces(images_list: List, name: str, compute_method: int = 0, shape_check: bool = False, converted_images: List=[]):
     faces = []
     embeddings = []
     images: List[Image.Image] = []
-    images, images_names = get_images_from_list(images_list)
+    images, images_names = get_images_from_list(images_list) if len(converted_images) > 0 else get_image_names(converted_images)
     for i,image in enumerate(images):
         logger.status(f"Building Face Model for {images_names[i]}...")
         face = build_face_model(image,str(i),save_model=False)
